@@ -1,42 +1,43 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using HomePage.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HomePage.Controllers
 {
     public class StudentController : Controller
     {
-      
-        public IActionResult AccessLevel()
+        private StudentContext _context { get; set; }
+
+        public StudentController(StudentContext context)
         {
-            return View();
+            _context = context;
+        }
+
+        [HttpGet]
+        public IActionResult Student()
+        {
+            // This would typically come from user input or authentication
+            var model = new StudentAccess
+            {
+                AccessLevel = 1, // Example access level, replace with real data
+                Students = _context.Student.ToList()
+            };
+            return View(model);
         }
 
         [HttpPost]
-        
-        public IActionResult AccessLevel(int accessLevel)
+        public IActionResult Student(StudentAccess model)
         {
-            var students = new List<Student>
-        {
-            new Student { FirstName = "Tommy", LastName = "Wells", Grade = "A" },
-            new Student { FirstName = "Eli", LastName = "Ashby", Grade = "B" },
-            new Student { FirstName = "Emily", LastName = "Jones", Grade = "C" },
-            new Student { FirstName = "Michael", LastName = "Harvey", Grade = "B+" },
-            new Student { FirstName = "Amanda", LastName = "Christie", Grade = "A-" }
-        };
-
-            var viewModel = new StudentAccess
+            if (ModelState.IsValid)
             {
-                Students = students,
-                AccessLevel = accessLevel
-            };
+                // Fetch students from the database
+                model.Students = _context.Student.ToList();
+                return View(model);
+            }
 
-            return View("Student", viewModel);
-            
+            // If the model is invalid, return the same view with the current model
+            return View(model);
         }
-
-       
-
-
-
     }
 }
